@@ -145,8 +145,8 @@ http://localhost:2000/api/v1
 | `REDIS_CACHE_TTL_SECONDS` | ❌ | Default `30` |
 | `UPSTASH_REDIS_URL` / `UPSTASH_REDIS_TLS_URL` | ❌ | Upstash Redis aliases |
 | `OTP_TTL_MS` | ❌ | OTP expiry duration |
-| `LOGTAIL_SOURCE_TOKEN` | ❌ | Logtail source token |
-| `LOGTAIL_INGESTING_HOST` | ❌ | Logtail ingest endpoint |
+| `LOGTAIL_SOURCE_TOKEN` | ⚠️ | Required in production for Logtail logging |
+| `LOGTAIL_INGESTING_HOST` | ⚠️ | Required in production for Logtail logging |
 | `DICEBEAR_API` | ❌ | DiceBear avatar API URL |
 | `DICEBEAR_STYLE` | ❌ | DiceBear avatar style |
 | `SMTP_SECURE` | ❌ | Enables secure SMTP connection |
