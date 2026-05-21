@@ -1,4 +1,4 @@
-import discord_logo from "../../images/discord_logo_2.svg";
+import discord_logo from "../../images/logo.png";
 import { ChevronRight, Plus, ArrowLeft, Loader2 } from "lucide-react";
 import server_img_1 from "../../images/new_server.svg";
 import server_img_2 from "../../images/server_image_2.svg";
@@ -136,15 +136,15 @@ function Navbar({ new_req_recieved, user_cred, onNavigate }) {
           onNavigate?.();
         }}
         className={[
-          "group relative grid h-12 w-12 place-items-center overflow-visible rounded-2xl border",
+          "group relative grid h-12 w-12 place-items-center overflow-visible rounded-full transition-all duration-200",
           activeServerId === "@me" || !activeServerId
-            ? "border-brand-400/40 bg-brand-400/10 text-brand-300"
-            : "border-white/10 bg-white/5 text-white/80 hover:bg-white/10",
+            ? "opacity-100 drop-shadow-md"
+            : "opacity-70 hover:opacity-100",
         ].join(" ")}
         title="Home"
       >
-        <span className="relative z-10 grid h-12 w-12 place-items-center overflow-hidden rounded-2xl">
-          <img src={discord_logo} alt="PiperChat" className="h-7 w-7" />
+        <span className="relative z-10 grid h-full w-full place-items-center overflow-hidden rounded-full">
+          <img src={discord_logo} alt="PiperChat" className="h-full w-full object-cover" />
         </span>
         {dmUnreadTotal ? (
           <span className="absolute -right-1 -top-1 z-20 grid h-6 min-w-6 place-items-center rounded-full bg-brand-400 px-2 text-[11px] font-black text-black shadow-soft">

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import logo from "../../images/discord_logo_3.png";
+import logo from "../../images/logo.png";
 import { useParams } from "react-router-dom";
 import invalid_link_image from "../../images/invalid_invite.svg";
 import jwt from "jwt-decode";
