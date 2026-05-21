@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-export default function AuthShell({ children, mode }) {
+export default function AuthShell({ children }) {
 
   return (
     <div
