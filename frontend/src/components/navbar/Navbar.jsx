@@ -1,4 +1,4 @@
-import discord_logo from "../../images/logo.png";
+import discord_logo from "../../images/discord_logo_3.png";
 import { ChevronRight, Plus, ArrowLeft, Loader2 } from "lucide-react";
 import server_img_1 from "../../images/new_server.svg";
 import server_img_2 from "../../images/server_image_2.svg";
@@ -144,7 +144,7 @@ function Navbar({ new_req_recieved, user_cred, onNavigate }) {
         title="Home"
       >
         <span className="relative z-10 grid h-full w-full place-items-center overflow-hidden rounded-full">
-          <img src={discord_logo} alt="PiperChat" className="h-full w-full object-cover" />
+          <img src={discord_logo} alt="PiperChat" className="h-full w-full object-cover rounded-2xl" />
         </span>
         {dmUnreadTotal ? (
           <span className="absolute -right-1 -top-1 z-20 grid h-6 min-w-6 place-items-center rounded-full bg-brand-400 px-2 text-[11px] font-black text-black shadow-soft">
