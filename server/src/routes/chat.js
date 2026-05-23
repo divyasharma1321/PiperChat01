@@ -36,6 +36,21 @@ function getAuthorizedUser(req, res) {
   }
 }
 
+function normalizeChatMessages(chatDetails = []) {
+  return chatDetails.flatMap((entry) =>
+    Array.isArray(entry) ? entry.filter(Boolean) : [entry].filter(Boolean),
+  );
+}
+
+function findChatMessage(channel, timestamp, senderId) {
+  const messages = normalizeChatMessages(channel?.chat_details || []);
+  return messages.find(
+    (entry) =>
+      String(entry?.timestamp) === String(timestamp) &&
+      String(entry?.sender_id) === String(senderId),
+  );
+}
+
 router.post("/store_message", expressRateLimit("chat"), async (req, res) => {
   const {
     message,
@@ -56,6 +71,7 @@ router.post("/store_message", expressRateLimit("chat"), async (req, res) => {
     sender_pic: profile_pic,
     sender_tag: tag,
     timestamp,
+    is_pinned: false,
   };
 
   const response = await Chat.find({
@@ -121,7 +137,7 @@ router.post("/store_message", expressRateLimit("chat"), async (req, res) => {
   } else {
     const pushNewChat = {
       $push: {
-        "channels.$.chat_details": [chatMessage],
+        "channels.$.chat_details": chatMessage,
       },
     };
     try {
@@ -174,8 +190,9 @@ router.post("/get_messages", async (req, res) => {
       return res.json({ chats: [] });
     }
     const chats = response[0].channels[0].chat_details || [];
-    await cache.setJson(cacheKey, { chats });
-    return res.json({ chats });
+    const normalizedChats = normalizeChatMessages(chats);
+    await cache.setJson(cacheKey, { chats: normalizedChats });
+    return res.json({ chats: normalizedChats });
   } catch (error) {
     logger.error(`Error retrieving chats: ${error.message}`);
     res.status(500).json({ error: "Failed to retrieve chats." });
@@ -206,11 +223,7 @@ router.post("/edit_server_message", async (req, res) => {
     const channel = chatDoc.channels.find(
       (entry) => entry.channel_id === channel_id,
     );
-    const message = channel?.chat_details.find(
-      (entry) =>
-        String(entry.timestamp) === String(timestamp) &&
-        entry.sender_id === senderId,
-    );
+    const message = findChatMessage(channel, timestamp, senderId);
 
     if (!message) {
       return res
@@ -238,6 +251,65 @@ router.post("/edit_server_message", async (req, res) => {
   }
 });
 
+router.post("/toggle_server_message_pin", async (req, res) => {
+  const { server_id, channel_id, timestamp, sender_id } = req.body;
+  const user = getAuthorizedUser(req, res);
+  if (!user) {
+    return;
+  }
+
+  if (!server_id || !channel_id || !timestamp || !sender_id) {
+    return res.status(400).json({ status: 400, message: "Invalid input" });
+  }
+
+  try {
+    const chatDoc = await Chat.findOne({
+      server_id,
+      "channels.channel_id": channel_id,
+    });
+    if (!chatDoc) {
+      return res.status(404).json({ status: 404, message: "Chat not found" });
+    }
+
+    const channel = chatDoc.channels.find(
+      (entry) => entry.channel_id === channel_id,
+    );
+    const message = findChatMessage(channel, timestamp, sender_id);
+
+    if (!message) {
+      return res
+        .status(404)
+        .json({ status: 404, message: "Message not found" });
+    }
+
+    message.is_pinned = !message.is_pinned;
+    await chatDoc.save();
+    await cache.del(`chat:${server_id}:${channel_id}`);
+
+    const io = getIO();
+    if (io) {
+      io.to(`channel:${channel_id}`).emit("server_message_pin_updated", {
+        timestamp,
+        sender_id,
+        is_pinned: message.is_pinned,
+        channel_id,
+        server_id,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      message: message.is_pinned ? "Message pinned" : "Message unpinned",
+      is_pinned: message.is_pinned,
+    });
+  } catch (error) {
+    logger.error(`Error toggling pinned message: ${error.message}`);
+    res
+      .status(500)
+      .json({ status: 500, message: "Failed to toggle pinned message" });
+  }
+});
+
 router.post("/delete_server_message", async (req, res) => {
   const { server_id, channel_id, timestamp } = req.body;
   const user = getAuthorizedUser(req, res);
@@ -262,9 +334,10 @@ router.post("/delete_server_message", async (req, res) => {
     const channel = chatDoc.channels.find(
       (entry) => entry.channel_id === channel_id,
     );
-    const originalLength = channel?.chat_details.length || 0;
+    const channelMessages = normalizeChatMessages(channel?.chat_details || []);
+    const originalLength = channelMessages.length;
 
-    channel.chat_details = channel.chat_details.filter(
+    channel.chat_details = channelMessages.filter(
       (entry) =>
         !(
           String(entry.timestamp) === String(timestamp) &&

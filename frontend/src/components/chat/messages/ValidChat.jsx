@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Hash, Pencil, Trash2, Save, SendHorizontal, Loader2, AlertCircle } from "lucide-react";
+import { Hash, Pencil, Trash2, Save, SendHorizontal, Loader2, AlertCircle, Pin } from "lucide-react";
 import socket from "../../socket/Socket";
 import { useParams } from "react-router-dom";
 import { clear_channel_unread } from "../../../store/unreadSlice";
@@ -175,6 +175,34 @@ function ValidChat() {
     }
   };
 
+  const togglePinMessage = async (message) => {
+    const res = await fetch(`${url}/chat/toggle_server_message_pin`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-auth-token": localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        server_id,
+        channel_id,
+        timestamp: message.timestamp,
+        sender_id: message.sender_id,
+      }),
+    });
+
+    const data = await res.json();
+    if (data.status === 200) {
+      setall_messages((currentMessages) =>
+        currentMessages.map((entry) =>
+          String(entry.timestamp) === String(message.timestamp) &&
+          String(entry.sender_id) === String(message.sender_id)
+            ? { ...entry, is_pinned: data.is_pinned }
+            : entry
+        )
+      );
+    }
+  };
+
   useEffect(() => {
     const handleReceiveMessage = (messageData) => {
       setall_messages((currentMessages) => {
@@ -215,15 +243,28 @@ function ValidChat() {
         )
       );
     };
+
+    const handlePinUpdatedMessage = (message_data) => {
+      setall_messages((currentMessages) =>
+        (currentMessages || []).map((entry) =>
+          String(entry.timestamp) === String(message_data.timestamp) &&
+          entry.sender_id === message_data.sender_id
+            ? { ...entry, is_pinned: message_data.is_pinned }
+            : entry
+        )
+      );
+    };
     //earlier it was server_message_receive which was wrong
     socket.on("server_message_received", handleReceiveMessage);
     socket.on("server_message_updated", handleUpdatedMessage);
     socket.on("server_message_deleted", handleDeletedMessage);
+    socket.on("server_message_pin_updated", handlePinUpdatedMessage);
 
     return () => {
       socket.off("server_message_received", handleReceiveMessage);
       socket.off("server_message_updated", handleUpdatedMessage);
       socket.off("server_message_deleted", handleDeletedMessage);
+      socket.off("server_message_pin_updated", handlePinUpdatedMessage);
     };
   }, []);
 
@@ -285,7 +326,7 @@ function ValidChat() {
             return (
               <div
                 key={`${elem.timestamp}-${elem.sender_id}`}
-                className="group flex gap-2 rounded-2xl px-1 py-1.5 transition hover:bg-white/5 sm:gap-3 sm:px-2 sm:py-2"
+                className={`group flex gap-2 rounded-2xl px-1 py-1.5 transition hover:bg-white/5 sm:gap-3 sm:px-2 sm:py-2 ${elem.is_pinned ? "border border-brand-300/20 bg-brand-300/5" : ""}`}
               >
                 <div className="relative mt-4 h-9 w-9 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-black/40 sm:mt-3 sm:h-10 sm:w-10">
                   <img
@@ -304,31 +345,48 @@ function ValidChat() {
                     <div className="text-[10px] leading-none text-white/35">
                       {timestamp}
                     </div>
-                    {mine ? (
-                      <div className="ml-auto flex items-center gap-1 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
-                        <button
-                          type="button"
-                          className="rounded-lg border border-white/10 bg-white/5 p-1.5 text-white/60 transition hover:bg-white/10 hover:text-white"
-                          onClick={() => {
-                            setEditingTimestamp(elem.timestamp);
-                            setEditingContent(elem.content);
-                          }}
-                          title="Edit"
-                          aria-label="Edit"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          className="rounded-lg border border-white/10 bg-white/5 p-1.5 text-white/60 transition hover:bg-white/10 hover:text-white"
-                          onClick={() => deleteMessage(elem)}
-                          title="Delete"
-                          aria-label="Delete"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                    {elem.is_pinned ? (
+                      <div className="inline-flex items-center gap-1 rounded-full border border-brand-300/25 bg-brand-300/10 px-2 py-0.5 text-[10px] font-semibold text-brand-200">
+                        <Pin className="h-3 w-3" />
+                        Pinned
                       </div>
                     ) : null}
+                    <div className="ml-auto flex items-center gap-1">
+                      {mine ? (
+                        <div className="flex items-center gap-1 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
+                          <button
+                            type="button"
+                            className="rounded-lg border border-white/10 bg-white/5 p-1.5 text-white/60 transition hover:bg-white/10 hover:text-white"
+                            onClick={() => {
+                              setEditingTimestamp(elem.timestamp);
+                              setEditingContent(elem.content);
+                            }}
+                            title="Edit"
+                            aria-label="Edit"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            className="rounded-lg border border-white/10 bg-white/5 p-1.5 text-white/60 transition hover:bg-white/10 hover:text-white"
+                            onClick={() => deleteMessage(elem)}
+                            title="Delete"
+                            aria-label="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : null}
+                      <button
+                        type="button"
+                        className={`rounded-lg border border-white/10 bg-white/5 p-1.5 transition hover:bg-white/10 hover:text-white ${elem.is_pinned ? "text-brand-200" : "text-white/60"}`}
+                        onClick={() => togglePinMessage(elem)}
+                        title={elem.is_pinned ? "Unpin" : "Pin"}
+                        aria-label={elem.is_pinned ? "Unpin message" : "Pin message"}
+                      >
+                        <Pin className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
 
                   {isEditing ? (
