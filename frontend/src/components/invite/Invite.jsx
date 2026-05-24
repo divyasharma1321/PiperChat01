@@ -18,7 +18,7 @@ function Invite() {
   const [invite_details, setinvite_details] = useState(null);
   const [invalid_invite_link, setinvalid_invite_link] = useState(null);
 
-const [already_member, setAlreadyMember] = useState(false);   // 403 from backend
+  const [already_member, setAlreadyMember] = useState(false); // 403 from backend
   const [accept_failed, setAcceptFailed] = useState(false);
   const [accepting, setAccepting] = useState(false);
 
@@ -185,6 +185,7 @@ const [already_member, setAlreadyMember] = useState(false);   // 403 from backen
                 <Button
                   className="w-full"
                   size="lg"
+                  disabled={accepting}
                   onClick={() => {
                     if (!token1) {
                       navigate("/", { replace: true });
@@ -197,8 +198,13 @@ const [already_member, setAlreadyMember] = useState(false);   // 403 from backen
                     }
                   }}
                 >
-                  Accept invite
+                  {accepting ? "Accepting..." : "Accept invite"}
                 </Button>
+                {accept_failed ? (
+                  <div className="text-center text-sm font-semibold text-red-300">
+                    Could not accept this invite. Try again.
+                  </div>
+                ) : null}
               </div>
             )
           ) : (

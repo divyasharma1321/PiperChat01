@@ -31,6 +31,8 @@ function TopnavChat({ onToggleSidebar }) {
   const { server_id } = useParams();
   const channel_id = useSelector((state) => state.currentPage.page_id);
   const channel_name = useSelector((state) => state.currentPage.page_name);
+  const serverRole = useSelector((state) => state.currentPage.role);
+  const isServerOwner = serverRole === "author";
   const pinnedMessages = channelMessages.filter((message) => message.is_pinned);
 
   const fetchChannelMessages = useCallback(async () => {
@@ -242,16 +244,18 @@ function TopnavChat({ onToggleSidebar }) {
                     <div className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-white/80">
                       {message.content}
                     </div>
-                    <div className="mt-3 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => handleTogglePin(message)}
-                        className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-white/75 transition hover:bg-white/10 hover:text-white"
-                      >
-                        <Pin className="h-4 w-4" />
-                        Unpin
-                      </button>
-                    </div>
+                    {isServerOwner ? (
+                      <div className="mt-3 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePin(message)}
+                          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-white/75 transition hover:bg-white/10 hover:text-white"
+                        >
+                          <Pin className="h-4 w-4" />
+                          Unpin
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                 );
               })

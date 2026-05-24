@@ -2,11 +2,13 @@ import config from "../config/index.js";
 
 import express from "express";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 import Chat from "../models/Chat.js";
 import Server from "../models/Server.js";
 import User from "../models/User.js";
 import * as cache from "../lib/cache.js";
+import { isServerOwner } from "../lib/serverAuthorization.js";
 import logger from "../lib/winston.js";
 import { getChats } from "../services/chatService.js";
 import { incrementServerUnread } from "../services/unreadService.js";
@@ -258,11 +260,28 @@ router.post("/toggle_server_message_pin", async (req, res) => {
     return;
   }
 
-  if (!server_id || !channel_id || !timestamp || !sender_id) {
+  if (
+    !server_id ||
+    !mongoose.isValidObjectId(server_id) ||
+    !channel_id ||
+    !timestamp ||
+    !sender_id
+  ) {
     return res.status(400).json({ status: 400, message: "Invalid input" });
   }
 
   try {
+    const server = await Server.findById(server_id).lean();
+    if (!server) {
+      return res.status(404).json({ status: 404, message: "Server not found" });
+    }
+
+    if (!isServerOwner(server, user.id)) {
+      return res
+        .status(403)
+        .json({ status: 403, message: "Only the server owner can pin messages" });
+    }
+
     const chatDoc = await Chat.findOne({
       server_id,
       "channels.channel_id": channel_id,
