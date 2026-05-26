@@ -68,47 +68,42 @@
 }
 
 
-.dark {
-  --bg-primary: #0f1117;
+.forestDark {
+  --bg-primary: #3f5a46;
   --text-primary: white;
 }
 
-.light {
-  --bg-primary: #f8fafc;
-  --text-primary: #111827;
-}
-
-.purple {
-  --bg-primary: #221b38;
+.peachDark {
+  --bg-primary: #7a4b42;
   --text-primary: white;
 }
 
-.blue {
-  --bg-primary: #18283d;
+.slateBlue {
+  --bg-primary: #4f5d7a;
   --text-primary: white;
 }
 
-.green {
-  --bg-primary: #1b3327;
+.oliveDark {
+  --bg-primary: #5c6650;
   --text-primary: white;
 }
 
-.pink {
-  --bg-primary: #352133;
+.redDark {
+  --bg-primary: #250000;
   --text-primary: white;
 }
 
-.orange {
-  --bg-primary: #3a2a20;
+.purpleDark {
+  --bg-primary: #120a2c;
   --text-primary: white;
 }
 
-.cyan {
-  --bg-primary: #1d3138;
+.brownDark {
+  --bg-primary: #6d4037;
   --text-primary: white;
 }
 
-.gold {
-  --bg-primary: #3a3420;
+.greyBlue {
+  --bg-primary: #66708f;
   --text-primary: white;
 }

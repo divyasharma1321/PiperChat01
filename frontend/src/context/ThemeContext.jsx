@@ -3,10 +3,10 @@ import { createContext, useContext, useEffect, useState } from "react";
 const ThemeContext = createContext();
 
 const themes = {
-  lightGreen: "#c7dfb2",
-  peach: "#e7b79d",
-  pastelBlue: "#aeb8d6",
-  pastelGreen: "#d9dec2",
+  forestDark: "#3f5a46",
+  peachDark: "#7a4b42",
+  slateBlue: "#4f5d7a",
+  oliveDark: "#5c6650",
 
   redDark: "#250000",
   purpleDark: "#120a2c",
@@ -29,7 +29,13 @@ export const ThemeProvider = ({ children }) => {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        setTheme,
+        themes,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );
