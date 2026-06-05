@@ -32,10 +32,7 @@ router.post("/create_invite_link", createInviteLinkValidator, validate, async (r
 
   const response = await checkInviteLink(inviter_id, server_id);
 
-  if (
-    !response[0].invites ||
-    response[0].invites.length === 0
-  ) {
+  if (!response[0].invites || response[0].invites.length === 0) {
     const timestamp = Date.now();
     const invite_code = shortid();
 
@@ -68,7 +65,7 @@ router.post("/create_invite_link", createInviteLinkValidator, validate, async (r
     try {
       await User.updateOne(
         { _id: new mongoose.Types.ObjectId(inviter_id) },
-        userInvitesList
+        userInvitesList,
       );
     } catch (err) {
       return res.status(500).json({ status: 500, message: "Server error" });
@@ -120,14 +117,10 @@ router.post("/accept_invite", acceptInviteValidator, validate, async (req, res) 
 
   const addUser = await addUserToServer(user_details, server_id);
   if (!addUser) {
-    return res.status(500).json({ message: "something went wrong in add_user" });
+    return res.status(500).json({ message: "Failed to join server." });
   }
 
-  await addServerToUser(
-    id,
-    server_details.invite_details,
-    "member"
-  );
+  await addServerToUser(id, server_details.invite_details, "member");
 
   const io = getIO();
   if (io) {
