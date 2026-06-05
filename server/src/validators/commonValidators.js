@@ -77,3 +77,46 @@ export const otpValidator = () =>
     .withMessage("OTP must contain only numbers")
     .isLength({ min: 4, max: 4 })
     .withMessage("OTP must contain exactly 4 digits");
+
+export const messageContentValidator = (field = "message") =>
+  body(field)
+    .trim()
+    .notEmpty()
+    .withMessage("Message content is required")
+    .isLength({ min: 1, max: 2000 })
+    .withMessage("Message content must be between 1 and 2000 characters");
+
+export const serverIdValidator = () =>
+  body("server_id").trim().notEmpty().withMessage("Server ID is required");
+
+export const channelIdValidator = () =>
+  body("channel_id").trim().notEmpty().withMessage("Channel ID is required");
+
+export const channelNameValidator = () =>
+  body("channel_name")
+    .trim()
+    .notEmpty()
+    .withMessage("Channel name is required")
+    .isLength({ min: 1, max: 100 })
+    .withMessage("Channel name must be between 1 and 100 characters");
+
+export const timestampValidator = () =>
+  body("timestamp")
+    .notEmpty()
+    .withMessage("Timestamp is required")
+    .isNumeric()
+    .withMessage("Timestamp must be numeric");
+
+export const tagValidator = () =>
+  body("tag")
+    .trim()
+    .notEmpty()
+    .withMessage("Tag is required")
+    .isLength({ min: 1, max: 10 })
+    .withMessage("Invalid tag");
+
+export const profilePicValidator = () =>
+  body("profile_pic")
+    .optional({ values: "falsy" })
+    .isString()
+    .withMessage("Profile picture must be a string");

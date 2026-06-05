@@ -14,6 +14,9 @@ import { getIO } from "../socket/runtime.js";
 
 import expressRateLimit from "../middleware/rateLimit.js";
 
+import { deleteServerMessageValidator, editServerMessageValidator, getMessagesValidator, storeMessageValidator } from "../validators/chat.js";
+import validate from "../middleware/validate.js";
+
 const router = express.Router();
 
 async function shouldSendNotification(userId, preferenceKey) {
@@ -36,7 +39,7 @@ function getAuthorizedUser(req, res) {
   }
 }
 
-router.post("/store_message", expressRateLimit("chat"), async (req, res) => {
+router.post("/store_message", expressRateLimit("chat"), storeMessageValidator, validate, async (req, res) => {
   const {
     message,
     server_id,
@@ -148,7 +151,7 @@ router.post("/store_message", expressRateLimit("chat"), async (req, res) => {
   }
 });
 
-router.post("/get_messages", async (req, res) => {
+router.post("/get_messages", getMessagesValidator, validate, async (req, res) => {
   const { channel_id, server_id } = req.body;
 
   if (!channel_id || !server_id) {
@@ -182,7 +185,7 @@ router.post("/get_messages", async (req, res) => {
   }
 });
 
-router.post("/edit_server_message", async (req, res) => {
+router.post("/edit_server_message", editServerMessageValidator, validate, async (req, res) => {
   const { server_id, channel_id, timestamp, content } = req.body;
   const user = getAuthorizedUser(req, res);
   if (!user) {
@@ -238,7 +241,7 @@ router.post("/edit_server_message", async (req, res) => {
   }
 });
 
-router.post("/delete_server_message", async (req, res) => {
+router.post("/delete_server_message", deleteServerMessageValidator, validate, async (req, res) => {
   const { server_id, channel_id, timestamp } = req.body;
   const user = getAuthorizedUser(req, res);
   if (!user) {
