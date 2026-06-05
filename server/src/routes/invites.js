@@ -12,9 +12,16 @@ import {
 } from "../services/serverService.js";
 import { getIO } from "../socket/runtime.js";
 
+import {
+  acceptInviteValidator,
+  createInviteLinkValidator,
+  inviteLinkInfoValidator,
+} from "../validators/invites.js";
+import validate from "../middleware/validate.js";
+
 const router = express.Router();
 
-router.post("/create_invite_link", async (req, res) => {
+router.post("/create_invite_link", createInviteLinkValidator, validate, async (req, res) => {
   const {
     inviter_name,
     inviter_id,
@@ -25,10 +32,7 @@ router.post("/create_invite_link", async (req, res) => {
 
   const response = await checkInviteLink(inviter_id, server_id);
 
-  if (
-    !response[0].invites ||
-    response[0].invites.length === 0
-  ) {
+  if (!response[0].invites || response[0].invites.length === 0) {
     const timestamp = Date.now();
     const invite_code = shortid();
 
@@ -61,7 +65,7 @@ router.post("/create_invite_link", async (req, res) => {
     try {
       await User.updateOne(
         { _id: new mongoose.Types.ObjectId(inviter_id) },
-        userInvitesList
+        userInvitesList,
       );
     } catch (err) {
       return res.status(500).json({ status: 500, message: "Server error" });
@@ -75,7 +79,7 @@ router.post("/create_invite_link", async (req, res) => {
   });
 });
 
-router.post("/invite_link_info", async (req, res) => {
+router.post("/invite_link_info", inviteLinkInfoValidator, validate, async (req, res) => {
   const { invite_link } = req.body;
   try {
     const invite = await Invite.findOne({ invite_code: invite_link }).lean();
@@ -97,7 +101,7 @@ router.post("/invite_link_info", async (req, res) => {
   }
 });
 
-router.post("/accept_invite", async (req, res) => {
+router.post("/accept_invite", acceptInviteValidator, validate, async (req, res) => {
   const { user_details, server_details } = req.body;
   const { id } = user_details;
   const server_id = server_details.invite_details.server_id;
@@ -113,14 +117,10 @@ router.post("/accept_invite", async (req, res) => {
 
   const addUser = await addUserToServer(user_details, server_id);
   if (!addUser) {
-    return res.status(500).json({ message: "something went wrong in add_user" });
+    return res.status(500).json({ message: "Failed to join server." });
   }
 
-  await addServerToUser(
-    id,
-    server_details.invite_details,
-    "member"
-  );
+  await addServerToUser(id, server_details.invite_details, "member");
 
   const io = getIO();
   if (io) {
