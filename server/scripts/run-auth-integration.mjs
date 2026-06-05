@@ -37,6 +37,7 @@ config.MAIL_TRANSPORT = "console";
 const { connectDatabase } = await import("../src/config/db.js");
 const User = (await import("../src/models/User.js")).default;
 const { getStoredOtp } = await import("../src/services/otpService.js");
+const { closeRedis } = await import("../src/lib/cache.js");
 const authRoutes = (await import("../src/routes/auth.js")).default;
 const profileRoutes = (await import("../src/routes/profile.js")).default;
 
@@ -250,6 +251,7 @@ async function main() {
   } finally {
     server.close();
     await mongoose.disconnect();
+    await closeRedis();
   }
 }
 
