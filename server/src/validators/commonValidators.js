@@ -26,9 +26,7 @@ export const strongPasswordValidator = () =>
     .matches(/[A-Z]/)
     .withMessage("Password must contain at least one uppercase letter")
     .matches(/[0-9]/)
-    .withMessage("Password must contain at least one number")
-    .matches(/[!@#$%^&*(),.?":{}|<>]/)
-    .withMessage("Password must contain at least one special character");
+    .withMessage("Password must contain at least one number");
 
 export const usernameValidator = () =>
   body("username")
@@ -46,10 +44,13 @@ export const dobValidator = () =>
   body("dob")
     .notEmpty()
     .withMessage("Date of birth is required")
-    .isISO8601()
-    .withMessage("Date of birth must be in YYYY-MM-DD format")
     .custom((value) => {
       const dob = new Date(value);
+
+      if (Number.isNaN(dob.getTime())) {
+        throw new Error("Invalid date of birth");
+      }
+
       const today = new Date();
 
       let age = today.getFullYear() - dob.getFullYear();
