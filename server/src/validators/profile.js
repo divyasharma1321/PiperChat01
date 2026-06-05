@@ -8,11 +8,16 @@ export const updateProfileValidator = [
     .withMessage("Username must be 2-32 characters."),
 
   body("profile_pic")
-    .optional({ values: "undefined" })
+    .optional({ values: "falsy" })
     .isString()
     .withMessage("Profile picture must be a string")
     .isLength({ max: 2048 })
-    .withMessage("Profile picture must be valid"),
+    .withMessage("Profile picture must be valid")
+    .isURL({
+      protocols: ["http", "https"],
+      require_protocol: true,
+    })
+    .withMessage("Profile picture must be a valid http(s) URL or empty"),
 
   body().custom((value) => {
     if (value.username === undefined && value.profile_pic === undefined) {
