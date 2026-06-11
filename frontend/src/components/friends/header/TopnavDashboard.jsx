@@ -194,8 +194,8 @@ function TopnavDashboard({button_status, onToggleSidebar}) {
         <div className="grid grid-cols-4 gap-2">
 
           <button
-            onClick={() => setTheme("lightGreen")}
-            className="h-12 rounded-xl bg-[#c7dfb2] transition hover:scale-105"
+            onClick={() => setTheme("forestDark")}
+            className="h-12 rounded-xl bg-[#3f5a46] transition hover:scale-105"
           />
 
           <button

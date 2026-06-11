@@ -4,9 +4,9 @@ const ThemeContext = createContext();
 
 const themes = {
   forestDark: "#3f5a46",
-  peachDark: "#7a4b42",
-  slateBlue: "#4f5d7a",
-  oliveDark: "#5c6650",
+  peach: "#e7b79d",
+  pastelBlue: "#aeb8d6",
+  pastelGreen: "#d9dec2",
 
   redDark: "#250000",
   purpleDark: "#120a2c",
