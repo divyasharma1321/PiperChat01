@@ -194,8 +194,8 @@ function TopnavDashboard({button_status, onToggleSidebar}) {
         <div className="grid grid-cols-4 gap-2">
 
           <button
-            onClick={() => setTheme("lightGreen")}
-            className="h-12 rounded-xl bg-[#c7dfb2] transition hover:scale-105"
+            onClick={() => setTheme("forestDark")}
+            className="h-12 rounded-xl bg-[#3f5a46] transition hover:scale-105"
           />
 
           <button
@@ -215,12 +215,12 @@ function TopnavDashboard({button_status, onToggleSidebar}) {
 
           <button
             onClick={() => setTheme("redDark")}
-            className="h-12 rounded-xl bg-gradient-to-br from-red-900 to-black transition hover:scale-105"
+            className="h-12 rounded-xl bg-[#250000] transition hover:scale-105"
           />
 
           <button
             onClick={() => setTheme("purpleDark")}
-            className="h-12 rounded-xl bg-gradient-to-br from-indigo-700 to-black transition hover:scale-105"
+            className="h-12 rounded-xl bg-[#120a2c] transition hover:scale-105"
           />
 
           <button
@@ -230,7 +230,7 @@ function TopnavDashboard({button_status, onToggleSidebar}) {
 
           <button
             onClick={() => setTheme("greyBlue")}
-            className="h-12 rounded-xl bg-gradient-to-br from-slate-600 to-slate-400 transition hover:scale-105"
+            className="h-12 rounded-xl bg-[#66708f] transition hover:scale-105"
           />
 
         </div>
