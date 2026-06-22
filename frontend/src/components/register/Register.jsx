@@ -4,6 +4,7 @@ import AuthShell from "../auth/AuthShell";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { API_BASE_URL } from "../../config";
+import PasswordStrengthMeter from "./PasswordStrengthMeter";
 import {
   Dialog,
   DialogContent,
@@ -447,6 +448,7 @@ function Register() {
                   )}
                 </button>
               </div>
+              <PasswordStrengthMeter password={user_values.password} />
               <p className="mt-1 text-[11px]" style={{ color: "rgba(255,255,255,0.3)" }}>
                 Minimum 7 characters.
               </p>
